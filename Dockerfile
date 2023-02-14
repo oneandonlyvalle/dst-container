@@ -1,34 +1,35 @@
 FROM debian:buster
 
 # ENV CLUSTER_NAME=
-# ENC CLUSTER_TOKEN=
+# ENV CLUSTER_TOKEN=
 
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN useradd -m dst \
-      && apt-get update \ 
-      && apt-get install wget -y \
-      && dpkg --add-architecture i386 \
-      && apt-get update \
-      && apt-get install lib32gcc1 -y
+    && add-apt-repository multiverse \
+    && dpkg --add-architecture i386 \
+    && apt-get update \ 
+    && apt-get install -y wget \
+    && apt-get install -y lib32gcc1 lib32stdc++6 libc6-i386 libcurl4-gnutls-dev:i386 libsdl2-2.0-0:i386 \
+    && apt-get install -y steamcmd
 
 USER dst
 
 WORKDIR /home/dst
 
-ADD --chown=dst:dst https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz /home/dst/
+# ADD --chown=dst:dst https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz /home/dst/
 
 COPY --chown=dst:dst dst_install.txt /home/dst/
 
-RUN wget https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz \
-  && tar xvf steamcmd_linux.tar.gz
+# RUN wget https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz \
+#     && tar xvf steamcmd_linux.tar.gz
 
-RUN /bin/bash /home/dst/steamcmd.sh +runscript /home/dst/dst_install.txt
+RUN /bin/bash steamcmd +runscript /home/dst/dst_install.txt
 
 COPY --chown=dst:dst entry.sh /home/dst/
 
 # RUN mkdir /home/dst/.klei/DoNotStarveTogether/$CLUSTER_NAME
-ADD ClusterConfig /home/dst/.klei/DoNotStarveTogether/${CLUSTER_NAME}
+ADD --chown=dst:dst ClusterConfig /home/dst/.klei/DoNotStarveTogether/${CLUSTER_NAME}
 
 # exposing proper ports
 EXPOSE 27015/udp/
